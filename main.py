@@ -7,7 +7,6 @@ from PyQt6.QtGui import QIcon
 from Pages.add_car import AddCarWindow
 from Pages.details import CarDetailsWindow
 from Pages.add_branch import AddBranchWindow
-from MySql.my_db import *
 
 
 class MainUI(QMainWindow):
