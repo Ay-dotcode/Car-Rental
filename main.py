@@ -7,6 +7,7 @@ from PyQt6.QtGui import QIcon
 from Pages.add_car import AddCarWindow
 from Pages.details import CarDetailsWindow
 from Pages.add_branch import AddBranchWindow
+from MySql.database import fetch_car_data
 
 
 class MainUI(QMainWindow):
@@ -82,6 +83,7 @@ class MainUI(QMainWindow):
             {"id": "011", "brand": "Mercedes", "model": "E-Class", "available": True, "rent_count": "9", "price": 95, "customer_name": "Ian Jackson"},
             {"id": "012", "brand": "Audi", "model": "A6", "available": True, "rent_count": "14", "price": 85, "customer_name": "Jackie King"},
         ]
+        self.cars = fetch_car_data()
 
         # Create cards and populate with car data
         for index, car in enumerate(self.cars):
@@ -120,15 +122,15 @@ class MainUI(QMainWindow):
         card_layout.addWidget(model_label, 0, 0)
         card_layout.addWidget(brand_label, 1, 0)
 
-        # ID and Count
-        price_label = QLabel(f"${car['price']}/day")
+        # Price and Customer
+        price_label = QLabel(f"${car['price_per_day']}/day")
         price_label.setStyleSheet("border: none; font-size: 16px; text-decoration: underline;")
         card_layout.addWidget(price_label, 2, 0)
 
         if car['available']:
-            customer_label = QLabel(f"Customer: {car['customer_name']}")
-        else:
             customer_label = QLabel("Car available")
+        else:
+            customer_label = QLabel(f"Customer: {car['customer_name']}")
         customer_label.setStyleSheet("border: none;")
 
         card_layout.addWidget(customer_label, 3, 0)
@@ -178,6 +180,3 @@ if __name__ == "__main__":
     with open("styles.qss", "r") as f:
         app.setStyleSheet(f.read())
     sys.exit(app.exec())
-
-
-
