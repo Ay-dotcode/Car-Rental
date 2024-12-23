@@ -11,6 +11,7 @@ class AddBranchWindow(QWidget):
     def __init__(self):
         super(AddBranchWindow, self).__init__()
         self.setWindowTitle("Add Branch")
+        self.setWindowIcon(QIcon("./images/eul logo.ico"))
         self.setFixedSize(550, 210)
 
         # Main layout

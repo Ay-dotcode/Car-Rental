@@ -1,17 +1,18 @@
 from PyQt6.QtWidgets import (
     QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QGridLayout, QLineEdit
 )
-
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import pyqtSignal
-
+from PyQt6.QtGui import QIntValidator
+from MySql.database import add_car
 
 class AddCarWindow(QWidget):
-    window_closed = pyqtSignal()
+    car_added = pyqtSignal() # Signal to notify when a car is added
 
     def __init__(self):
         super(AddCarWindow, self).__init__()
         self.setWindowTitle("Add Car")
+        self.setWindowIcon(QIcon("./images/eul logo.ico"))
         self.setFixedSize(550, 250)
 
         # Main layout
@@ -29,6 +30,7 @@ class AddCarWindow(QWidget):
         self.model_input.setPlaceholderText("Model")
         self.price_input = QLineEdit()
         self.price_input.setPlaceholderText("Price per day")
+        self.price_input.setValidator(QIntValidator())
         self.branch_input = QLineEdit()
         self.branch_input.setPlaceholderText("Branch name")
 
@@ -44,17 +46,15 @@ class AddCarWindow(QWidget):
 
         main_layout.addLayout(grid_layout)
 
-        brand = self.brand_input.text()
-        model = self.model_input.text()
-        price = self.price_input.text()
-        branch = self.branch_input.text
-
         # Buttons
         button_layout = QHBoxLayout()
         self.cancel_btn = QPushButton("Cancel")
         self.cancel_btn.clicked.connect(self.close)
         self.add_btn = QPushButton("Add Car")
-        # self.add_btn.clicked.connect()
+
+        # Update the lambda to capture input values inside the click event
+        self.add_btn.clicked.connect(lambda: self.on_add_car_button_click())
+
         self.cancel_btn.setStyleSheet("margin: 5px 20px; padding: 5px 5px; font-size: 20px; border-radius: 2px;")
         self.add_btn.setStyleSheet("margin: 5px 20px; padding: 5px 5px; font-size: 20px; border-radius: 2px;")
 
@@ -65,6 +65,16 @@ class AddCarWindow(QWidget):
 
         self.setLayout(main_layout)
 
+    def on_add_car_button_click(self):
+        brand = self.brand_input.text()
+        model = self.model_input.text()
+        price_per_day = self.price_input.text()
+        branch_name = self.branch_input.text()
+
+        add_car(model, brand, price_per_day, branch_name)
+        self.car_added.emit()
+
+        self.close()
+
     def closeEvent(self, event):
-        self.window_closed.emit()
         event.accept()

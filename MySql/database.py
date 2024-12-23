@@ -78,7 +78,27 @@ def fetch_car_data():
                    ''')
     cars = cursor.fetchall()
     cursor.close()
-    mydb.close()
     return cars
+def add_car(model, brand, price_per_day, branch_name):
+    if not model or not brand or not price_per_day or not branch_name:
+        print("All fields are required!")
+        return
 
+    mycursor = mydb.cursor()
+    query = """
+    INSERT INTO car (model, brand, price_per_day, branch_id, available)
+    SELECT %s, %s, ROUND(%s, 2), branch_id, TRUE
+    FROM branch
+    WHERE name = %s;
+    """
+    try:
+        mycursor.execute(query, (model, brand, price_per_day, branch_name))
+        mydb.commit()
+        print("Car added successfully!") 
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+    finally:
+        mycursor.close()
+
+    
 mycursor.close()    
