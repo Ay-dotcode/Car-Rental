@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QIntValidator
+from MySql.database import add_branch
 
 class AddBranchWindow(QWidget):
     window_closed = pyqtSignal()
@@ -45,6 +46,7 @@ class AddBranchWindow(QWidget):
         self.cancel_btn = QPushButton("Cancel")
         self.cancel_btn.clicked.connect(self.close)
         self.add_btn = QPushButton("Add Branch")
+        self.add_btn.clicked.connect(self.on_add_branch_button_click)
         self.cancel_btn.setStyleSheet("margin: 5px 20px; padding: 5px 5px; font-size: 20px; border-radius: 2px;")
         self.add_btn.setStyleSheet("margin: 5px 20px; padding: 5px 5px; font-size: 20px; border-radius: 2px;")
 
@@ -54,6 +56,15 @@ class AddBranchWindow(QWidget):
         main_layout.addLayout(button_layout)
 
         self.setLayout(main_layout)
+
+    def on_add_branch_button_click(self):
+        branch_name = self.name_input.text()
+        location = self.location_input.text()
+        contact = self.contact_input.text()
+
+        add_branch(branch_name, location, contact)
+        self.window_closed.emit()
+
 
     def closeEvent(self, event):
         self.window_closed.emit()

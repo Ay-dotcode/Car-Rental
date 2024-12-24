@@ -99,6 +99,23 @@ def add_car(model, brand, price_per_day, branch_name):
         print(f"Error: {err}")
     finally:
         mycursor.close()
+def add_branch(branch_name, location, contact):
+    if not branch_name or not location or not contact:
+        print("All fields are required!")
+        return
+
+    mycursor = mydb.cursor()
+    try:
+        mycursor.execute(f"""
+            INSERT INTO branch (name, location, contact)
+            VALUES ('{branch_name}', '{location}', {contact});
+    """)
+        mydb.commit()
+        print("Branch added successfully!")
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+    finally:
+        mycursor.close()
 
     
 mycursor.close()    

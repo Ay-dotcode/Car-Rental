@@ -14,7 +14,7 @@ class MainUI(QMainWindow):
         super(MainUI, self).__init__()
         self.setWindowTitle("Car Rental")
         self.setWindowIcon(QIcon("./images/eul logo.ico"))
-        self.setFixedSize(1100, 500)
+        self.setFixedSize(1100, 400)
         self.child_windows = []  # List to track child windows
 
         # Main widget and layout
