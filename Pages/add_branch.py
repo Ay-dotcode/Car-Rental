@@ -65,6 +65,7 @@ class AddBranchWindow(QWidget):
         add_branch(branch_name, location, contact)
         self.window_closed.emit()
 
+        self.close()
 
     def closeEvent(self, event):
         self.window_closed.emit()
