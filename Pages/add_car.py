@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QIntValidator
-from MySql.database import add_car
+from Database.database import add_car
 
 class AddCarWindow(QWidget):
     car_added = pyqtSignal() # Signal to notify when a car is added

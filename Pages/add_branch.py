@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QIntValidator
-from MySql.database import add_branch
+from Database.database import add_branch
 
 class AddBranchWindow(QWidget):
     window_closed = pyqtSignal()
