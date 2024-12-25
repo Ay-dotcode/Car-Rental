@@ -13,7 +13,6 @@ class MainUI(QMainWindow):
     def __init__(self):
         super(MainUI, self).__init__()
         self.setWindowTitle("Car Rental")
-        self.setWindowIcon(QIcon("./images/eul logo.ico"))
         self.setFixedSize(1100, 410)
         self.child_windows = []  # List to track child windows
 
@@ -151,6 +150,7 @@ class MainUI(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    app.setWindowIcon(QIcon("./Images/EUL logo.ico"))
     ui = MainUI()
     ui.show()
     with open("styles.qss", "r") as f:

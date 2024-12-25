@@ -1,7 +1,6 @@
 from PyQt6.QtWidgets import (
     QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QGridLayout, QLineEdit
 )
-from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QIntValidator
 from MySql.database import add_car
@@ -11,8 +10,8 @@ class AddCarWindow(QWidget):
 
     def __init__(self):
         super(AddCarWindow, self).__init__()
-        self.setWindowTitle("Add Car")
-        self.setWindowIcon(QIcon("./images/eul logo.ico"))
+        self.setWindowTitle("Add Car")        
+
         self.setFixedSize(550, 250)
 
         # Main layout

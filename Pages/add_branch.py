@@ -1,7 +1,6 @@
 from PyQt6.QtWidgets import (
     QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QGridLayout, QLineEdit
 )
-from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QIntValidator
 from MySql.database import add_branch
@@ -12,7 +11,6 @@ class AddBranchWindow(QWidget):
     def __init__(self):
         super(AddBranchWindow, self).__init__()
         self.setWindowTitle("Add Branch")
-        self.setWindowIcon(QIcon("./images/eul logo.ico"))
         self.setFixedSize(550, 210)
 
         # Main layout

@@ -2,7 +2,6 @@ from PyQt6.QtWidgets import (
     QWidget, QLabel, QPushButton, QHBoxLayout, QGridLayout, QLineEdit, QSpinBox
 )
 from datetime import datetime
-from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QIntValidator
 
@@ -11,7 +10,6 @@ class CarDetailsWindow(QWidget):
 
     def __init__(self, car):
         super().__init__()
-        self.setWindowIcon(QIcon("./images/eul logo.ico"))
         self.setWindowTitle(f"{car['brand']} {car['model']} - Details")
         if car['customer_name']:
             self.setFixedSize(470, 370)
