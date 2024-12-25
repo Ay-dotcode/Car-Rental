@@ -14,7 +14,7 @@ class MainUI(QMainWindow):
         super(MainUI, self).__init__()
         self.setWindowTitle("Car Rental")
         self.setWindowIcon(QIcon("./images/eul logo.ico"))
-        self.setFixedSize(1100, 400)
+        self.setFixedSize(1100, 410)
         self.child_windows = []  # List to track child windows
 
         # Main widget and layout
@@ -69,6 +69,7 @@ class MainUI(QMainWindow):
     def create_car_card(self, car):
         card_widget = QWidget()
         card_layout = QGridLayout()
+        # card_widget.setFixedSize(300, 200)
         card_layout.setContentsMargins(20, 20, 20, 5)
         card_widget.setStyleSheet("border: 2px solid grey; border-radius: 10px;")
 
