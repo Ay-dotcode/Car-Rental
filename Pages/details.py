@@ -11,7 +11,7 @@ class CarDetailsWindow(QWidget):
 
     def __init__(self, car):
         super().__init__()
-        self.car = car  # Store car object
+        self.setWindowIcon(QIcon("./images/eul logo.ico"))
         self.setWindowTitle(f"{car['brand']} {car['model']} - Details")
         if car['customer_name']:
             self.setFixedSize(470, 370)

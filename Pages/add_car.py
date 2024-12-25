@@ -53,7 +53,7 @@ class AddCarWindow(QWidget):
         self.add_btn = QPushButton("Add Car")
 
         # Update the lambda to capture input values inside the click event
-        self.add_btn.clicked.connect(lambda: self.on_add_car_button_click())
+        self.add_btn.clicked.connect(self.on_add_car_button_click)
 
         self.cancel_btn.setStyleSheet("margin: 5px 20px; padding: 5px 5px; font-size: 20px; border-radius: 2px;")
         self.add_btn.setStyleSheet("margin: 5px 20px; padding: 5px 5px; font-size: 20px; border-radius: 2px;")
