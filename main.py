@@ -1,8 +1,9 @@
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QLabel, QPushButton, QWidget,
-    QVBoxLayout, QHBoxLayout, QGridLayout, QSizePolicy, QLineEdit, QScrollArea
+    QVBoxLayout, QHBoxLayout, QGridLayout, QScrollArea
 )
 import sys
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
 from Pages.add_car import AddCarWindow
 from Pages.details import CarDetailsWindow
@@ -13,7 +14,7 @@ class MainUI(QMainWindow):
     def __init__(self):
         super(MainUI, self).__init__()
         self.setWindowTitle("Car Rental")
-        self.setFixedSize(1100, 410)
+        self.setFixedSize(1100, 425)
         self.child_windows = []  # List to track child windows
 
         # Main widget and layout
@@ -56,19 +57,19 @@ class MainUI(QMainWindow):
         self.setCentralWidget(central_widget)
 
     def update_car_cards(self, scroll_layout):
-        # Fetch the latest car data from the database
         self.cars = fetch_car_data()
 
-        # Create cards and populate with car data
+        # Add new cards to the layout
         for index, car in enumerate(self.cars):
             card = self.create_car_card(car)
-            row, col = divmod(index, 3)  # Arrange cards in 2 rows and 3 columns
-            scroll_layout.addWidget(card, row, col)
+            row, col = divmod(index, 3)  # Arrange cards in rows and columns
+            alignment = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
+            scroll_layout.addWidget(card, row, col, alignment)
 
     def create_car_card(self, car):
         card_widget = QWidget()
         card_layout = QGridLayout()
-        # card_widget.setFixedSize(300, 200)
+        card_widget.setFixedSize(340, 160)
         card_layout.setContentsMargins(20, 20, 20, 5)
         card_widget.setStyleSheet("border: 2px solid grey; border-radius: 10px;")
 

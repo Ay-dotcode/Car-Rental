@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import (
     QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QGridLayout, QLineEdit
 )
 from PyQt6.QtCore import pyqtSignal
-from PyQt6.QtGui import QIntValidator
+from PyQt6.QtGui import QDoubleValidator
 from Database.database import add_car
 
 class AddCarWindow(QWidget):
@@ -29,7 +29,7 @@ class AddCarWindow(QWidget):
         self.model_input.setPlaceholderText("Model")
         self.price_input = QLineEdit()
         self.price_input.setPlaceholderText("Price per day")
-        self.price_input.setValidator(QIntValidator())
+        self.price_input.setValidator(QDoubleValidator(0.0, 9999.99, 2)) # Only allow numbers with 2 decimal places
         self.branch_input = QLineEdit()
         self.branch_input.setPlaceholderText("Branch name")
 

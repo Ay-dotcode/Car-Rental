@@ -11,7 +11,7 @@ def create_connection(db_file):
     return None
 
 # Connect to SQLite database
-db_file = "MySql/carrental.db"
+db_file = "Database/carrental.db"
 conn = create_connection(db_file)
 
 if conn is not None:
@@ -22,7 +22,7 @@ if conn is not None:
     create_branch_table = """
     CREATE TABLE IF NOT EXISTS branch (
         branch_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
+        name TEXT NOT NULL UNIQUE,
         location TEXT NOT NULL,
         contact TEXT
     );
