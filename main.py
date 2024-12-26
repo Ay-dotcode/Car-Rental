@@ -131,7 +131,7 @@ class MainUI(QMainWindow):
 
     def on_card_click(self, car):
         self.close_all_child_windows()
-        self.car_details_window = CarDetailsWindow(car)
+        self.car_details_window = CarDetailsWindow(car['car_id'])
         self.child_windows.append(self.car_details_window)  # Track the window to manage it later
         self.car_details_window.show()
 

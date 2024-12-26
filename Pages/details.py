@@ -1,15 +1,16 @@
 from PyQt6.QtWidgets import (
     QWidget, QLabel, QPushButton, QHBoxLayout, QGridLayout, QLineEdit, QSpinBox
 )
-from datetime import datetime
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QIntValidator
+from Database.database import get_car_by_id
 
 class CarDetailsWindow(QWidget):
     window_closed = pyqtSignal()
 
-    def __init__(self, car):
+    def __init__(self, car_id):
         super().__init__()
+        car = get_car_by_id(car_id)
         self.setWindowTitle(f"{car['brand']} {car['model']} - Details")
         if car['customer_name']:
             self.setFixedSize(470, 370)
@@ -23,29 +24,27 @@ class CarDetailsWindow(QWidget):
         brand_label = QLabel(f"Brand Name: {car['brand']}")
         model_label = QLabel(f"Model Name: {car['model']}")
         price_label = QLabel(f"Price: ${car['price_per_day']}/day")
-        times_rented_label = QLabel(f"Times Rented: {car['rent_count']}")
         availability_label = QLabel(f"Status: {'Available' if not car['customer_name'] else 'Rented by ' + car['customer_name']}")
 
         layout.addWidget(brand_label, 0, 0)
         layout.addWidget(model_label, 0, 1)
         layout.addWidget(price_label, 1, 0)
-        layout.addWidget(times_rented_label, 1, 1)
         layout.addWidget(availability_label, 2, 1)
 
         if car['customer_name']:
             # Customer Details
-            contact_label = QLabel(f"Customer Contact: 'N/A'")
-            email_label = QLabel(f"Customer Email:  'N/A'")
-            license_label = QLabel(f"Customer License:  'N/A'")
+            contact_label = QLabel(f"Customer Contact: {car['customer_contact']}")
+            email_label = QLabel(f"Customer Email: {car['customer_email']}")
+            license_label = QLabel(f"Customer License:  {car['customer_license']}")
 
             layout.addWidget(contact_label, 3, 0)
             layout.addWidget(email_label, 4, 0)
             layout.addWidget(license_label, 5, 0)
      
             # Rental Details
-            rented_date_label = QLabel(f"Rented Date:  'N/A'")
-            return_date_label = QLabel(f"Expected Return Date: 'N/A'")
-            total_cost_label = QLabel("Total Cost: N/A")
+            rented_date_label = QLabel(f"Rented Date: {car['rental_date']}")
+            return_date_label = QLabel(f"Expected Return Date: {car['expected_return_date']}")
+            total_cost_label = QLabel("Total Cost: ")
 
             layout.addWidget(rented_date_label, 4, 1)
             layout.addWidget(return_date_label, 5, 1)

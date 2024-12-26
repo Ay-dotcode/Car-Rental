@@ -54,7 +54,6 @@ if conn is not None:
         customer_id INTEGER,
         rental_date DATE NOT NULL,
         return_date DATE,
-        total_cost REAL,
         FOREIGN KEY (car_id) REFERENCES car(car_id) ON DELETE CASCADE,
         FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE
     );
@@ -122,6 +121,53 @@ if conn is not None:
             print(f"Error: {e}")
         finally:
             cursor.close()
+    def get_car_by_id(car_id):
+        conn.row_factory = sqlite3.Row
+        mycursor = conn.cursor()
+        try:
+            query = """
+                SELECT 
+                    car.car_id, 
+                    car.model, 
+                    car.brand, 
+                    car.price_per_day, 
+                    customer.fullname AS customer_name, 
+                    customer.contact AS customer_contact,
+                    customer.drivers_license AS customer_license,
+                    customer.email AS customer_email,
+                    active_rental.rental_date AS rental_date,
+                    active_rental.return_date AS expected_return_date,
+                    branch.name AS branch_name,
+                    branch.location AS branch_location,
+                    branch.contact AS branch_contact
+                FROM car
+                LEFT JOIN (
+                    SELECT rental_id, car_id, customer_id, rental_date, return_date
+                    FROM rentals
+                    WHERE return_date >= DATE('now') OR return_date IS NULL
+                    ORDER BY rental_date DESC
+                ) active_rental ON car.car_id = active_rental.car_id
+                LEFT JOIN customer ON active_rental.customer_id = customer.customer_id
+                LEFT JOIN branch ON car.branch_id = branch.branch_id
+                WHERE car.car_id = ?
+                GROUP BY 
+                    car.car_id, car.model, car.brand, car.price_per_day,
+                    customer.fullname, customer.contact, customer.drivers_license, customer.email,
+                    active_rental.rental_date, active_rental.return_date,
+                    branch.name, branch.location, branch.contact;
+            """
+            mycursor.execute(query, (car_id,))
+            car = mycursor.fetchone()
+            if car:
+                return dict(car)
+            else:
+                print(f"No car found with ID {car_id}")
+                return None
+        except sqlite3.Error as err:
+            print(f"Get car error: {err}")
+        finally:
+            mycursor.close()
+
 
     mycursor.close()
 else:
