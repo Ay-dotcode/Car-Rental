@@ -3,10 +3,10 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QIntValidator
-from Database.database import get_car_by_id
+from Database.database import get_car_by_id, delete_car
 
 class CarDetailsWindow(QWidget):
-    window_closed = pyqtSignal()
+    details_closed = pyqtSignal()
 
     def __init__(self, car_id):
         super().__init__()
@@ -64,6 +64,7 @@ class CarDetailsWindow(QWidget):
         button_layout.addStretch()  # Add stretch to push buttons to the right
 
         delete_button = QPushButton("Delete")
+        delete_button.clicked.connect(lambda: self.delete_car_btn(car_id))
         edit_button = QPushButton("Edit")
         edit_button.clicked.connect(self.enable_edit_mode)
         ok_button = QPushButton("Ok")
@@ -87,6 +88,10 @@ class CarDetailsWindow(QWidget):
 
         self.setLayout(layout)
 
+    def delete_car_btn(self, car_id):
+        delete_car(car_id)
+        self.close()
+
     def enable_edit_mode(self):
         layout = self.layout()
         self.setFixedSize(750, 310)
@@ -105,17 +110,12 @@ class CarDetailsWindow(QWidget):
         self.brand_input = QLineEdit(self.car['brand'])
         self.price_input = QLineEdit(str(self.car['price']))
         self.price_input.setValidator(QIntValidator())
-        self.times_rented_input = QSpinBox()
-        self.times_rented_input.setRange(0, 1000)
-        self.times_rented_input.setValue(int(self.car['rent_count']))
-        # self.times_rented_input.setValidator(QIntValidator())
 
         # Set fixed width for input fields
         input_width = 200
         self.model_input.setFixedWidth(input_width)
         self.brand_input.setFixedWidth(input_width)
         self.price_input.setFixedWidth(input_width // 2)
-        self.times_rented_input.setFixedWidth(input_width // 2)
 
         layout.addWidget(QLabel("Brand Name:"), 0, 0)
         layout.addWidget(self.brand_input, 0, 1)
@@ -123,8 +123,6 @@ class CarDetailsWindow(QWidget):
         layout.addWidget(self.model_input, 0, 3)
         layout.addWidget(QLabel("Price:"), 1, 0)
         layout.addWidget(self.price_input, 1, 1)
-        layout.addWidget(QLabel("Times Rented:"), 1, 2)
-        layout.addWidget(self.times_rented_input, 1, 3)
 
         # Customer Details
         self.customer_name = QLineEdit(self.car.get('customer_name', 'N/A') if self.car.get('customer_name') else '')
@@ -199,15 +197,14 @@ class CarDetailsWindow(QWidget):
         self.car['brand'] = self.brand_input.text()
         self.car['model'] = self.model_input.text()
         self.car['price'] = float(self.price_input.text())
-        self.car['rent_count'] = int(self.times_rented_input.text())
         self.car['customer_name'] = None if self.availability_input.text() == 'Available' else self.availability_input.text().replace('Rented by ', '')
 
         self.close()
 
         self.total_cost_input = QLineEdit(self.car.get('total_cost', 'N/A') if self.car.get('total_cost') else '')
     
-    def closeEvent(self, event):
-        self.window_closed.emit()
+    def closeEvent(self, event):        
+        self.details_closed.emit() # Emit the signal to update the main window
         event.accept()
 
     def remove_button_layout(self):

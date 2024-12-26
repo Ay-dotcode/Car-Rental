@@ -6,7 +6,7 @@ from PyQt6.QtGui import QIntValidator
 from Database.database import add_branch
 
 class AddBranchWindow(QWidget):
-    window_closed = pyqtSignal()
+    branch_added = pyqtSignal()
 
     def __init__(self):
         super(AddBranchWindow, self).__init__()
@@ -61,10 +61,10 @@ class AddBranchWindow(QWidget):
         contact = self.contact_input.text()
 
         add_branch(branch_name, location, contact)
-        self.window_closed.emit()
+        self.branch_added.emit()
 
         self.close()
 
     def closeEvent(self, event):
-        self.window_closed.emit()
+        self.branch_added.emit()
         event.accept()

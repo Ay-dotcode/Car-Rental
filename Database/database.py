@@ -15,19 +15,18 @@ db_file = "Database/carrental.db"
 conn = create_connection(db_file)
 
 if conn is not None:
-    # Create a cursor object
     mycursor = conn.cursor()
 
-    # Create tables
-    create_branch_table = """
+    # Create tables if they don't exist
+    mycursor.execute("""
     CREATE TABLE IF NOT EXISTS branch (
         branch_id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE,
         location TEXT NOT NULL,
         contact TEXT
     );
-    """
-    create_car_table = """
+    """)
+    mycursor.execute("""
     CREATE TABLE IF NOT EXISTS car (
         car_id INTEGER PRIMARY KEY AUTOINCREMENT,
         model TEXT NOT NULL,
@@ -37,8 +36,8 @@ if conn is not None:
         branch_id INTEGER,
         FOREIGN KEY (branch_id) REFERENCES branch(branch_id) ON DELETE SET NULL
     );
-    """
-    create_customer_table = """
+    """)
+    mycursor.execute("""
     CREATE TABLE IF NOT EXISTS customer (
         customer_id INTEGER PRIMARY KEY AUTOINCREMENT,
         fullname TEXT NOT NULL,
@@ -46,8 +45,8 @@ if conn is not None:
         email TEXT UNIQUE NOT NULL,
         drivers_license TEXT UNIQUE NOT NULL
     );
-    """
-    create_rentals_table = """
+    """)
+    mycursor.execute("""
     CREATE TABLE IF NOT EXISTS rentals (
         rental_id INTEGER PRIMARY KEY AUTOINCREMENT,
         car_id INTEGER,
@@ -57,14 +56,10 @@ if conn is not None:
         FOREIGN KEY (car_id) REFERENCES car(car_id) ON DELETE CASCADE,
         FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE
     );
-    """
-
-    # Execute table creation queries
-    mycursor.execute(create_branch_table)
-    mycursor.execute(create_car_table)
-    mycursor.execute(create_customer_table)
-    mycursor.execute(create_rentals_table)
+    """)
+    
     conn.commit()
+    mycursor.close()
 
     def fetch_car_data():
         conn.row_factory = sqlite3.Row
@@ -168,8 +163,20 @@ if conn is not None:
             print(f"Get car error: {err}")
         finally:
             mycursor.close()
+    def delete_car(car_id):
+        cursor = conn.cursor()
+        try:
+            cursor.execute("DELETE FROM car WHERE car_id = ?", (car_id,))
+            if cursor.rowcount > 0:
+                conn.commit()
+                print("Car deleted successfully!")
+            else:
+                print(f"No car found with ID {car_id}")
+        except Error as e:
+            print(f"Error: {e}")
+        finally:
+            cursor.close()
 
 
-    mycursor.close()
 else:
     print("Failed to create database connection.")
