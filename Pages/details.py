@@ -22,7 +22,7 @@ class CarDetailsWindow(QWidget):
         # Car Details
         brand_label = QLabel(f"Brand Name: {car['brand']}")
         model_label = QLabel(f"Model Name: {car['model']}")
-        price_label = QLabel(f"Price: ${car['price']}/day")
+        price_label = QLabel(f"Price: ${car['price_per_day']}/day")
         times_rented_label = QLabel(f"Times Rented: {car['rent_count']}")
         availability_label = QLabel(f"Status: {'Available' if not car['customer_name'] else 'Rented by ' + car['customer_name']}")
 

@@ -72,13 +72,12 @@ if conn is not None:
         cursor = conn.cursor()
         cursor.execute('''
             SELECT car.*, 
-                customer.fullname AS customer_name, 
-                COUNT(rentals.rental_id) AS rent_count
+            customer.fullname AS customer_name
             FROM car
             LEFT JOIN rentals ON car.car_id = rentals.car_id
             LEFT JOIN customer ON rentals.customer_id = customer.customer_id
             GROUP BY car.car_id, customer.customer_id;
-                    ''')
+        ''')
         cars = cursor.fetchall()
         cursor.close()
         return cars

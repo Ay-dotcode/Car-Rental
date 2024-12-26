@@ -73,11 +73,6 @@ class MainUI(QMainWindow):
         card_layout.setContentsMargins(20, 20, 20, 5)
         card_widget.setStyleSheet("border: 2px solid grey; border-radius: 10px;")
 
-        # Top Labels
-        count_label = QLabel(f"Times Rented: {car['rent_count']}")
-        count_label.setStyleSheet("border: none; margin-left: 10px;")
-        card_layout.addWidget(count_label, 0, 1)
-
         # Brand and Model
         model_label = QLabel(f"Model: {car['model']}")
         model_label.setStyleSheet("border: none;")
