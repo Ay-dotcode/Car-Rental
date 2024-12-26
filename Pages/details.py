@@ -27,8 +27,8 @@ class CarDetailsWindow(QWidget):
         availability_label = QLabel(f"Status: {'Available' if not car['customer_name'] else 'Rented by ' + car['customer_name']}")
 
         layout.addWidget(brand_label, 0, 0)
-        layout.addWidget(model_label, 0, 1)
-        layout.addWidget(price_label, 1, 0)
+        layout.addWidget(model_label, 1, 0)
+        layout.addWidget(price_label, 1, 1)
         layout.addWidget(availability_label, 2, 1)
 
         if car['customer_name']:
@@ -44,16 +44,16 @@ class CarDetailsWindow(QWidget):
             # Rental Details
             rented_date_label = QLabel(f"Rented Date: {car['rental_date']}")
             return_date_label = QLabel(f"Expected Return Date: {car['expected_return_date']}")
-            total_cost_label = QLabel("Total Cost: ")
+            total_cost_label = QLabel(f"Total Cost: {car['total_cost']}")
 
             layout.addWidget(rented_date_label, 4, 1)
             layout.addWidget(return_date_label, 5, 1)
             layout.addWidget(total_cost_label, 6, 1)
 
         # Branch Details
-        branch_label = QLabel(f"Branch: 'N/A'")
-        branch_contact_label = QLabel(f"Branch Contact: 'N/A'")
-        branch_location_label = QLabel(f"Branch Location: 'N/A'")
+        branch_label = QLabel(f"Branch Name: {car['branch_name']}")
+        branch_contact_label = QLabel(f"Branch Contact: {car['branch_contact']}")
+        branch_location_label = QLabel(f"Branch Location: {car['branch_location']}")
 
         layout.addWidget(branch_label, 7, 0)
         layout.addWidget(branch_contact_label, 8, 0)

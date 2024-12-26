@@ -126,12 +126,12 @@ if conn is not None:
         mycursor = conn.cursor()
         try:
             query = """
-                SELECT 
-                    car.car_id, 
-                    car.model, 
-                    car.brand, 
-                    car.price_per_day, 
-                    customer.fullname AS customer_name, 
+                SELECT
+                    car.car_id,
+                    car.model,
+                    car.brand,
+                    car.price_per_day,
+                    customer.fullname AS customer_name,
                     customer.contact AS customer_contact,
                     customer.drivers_license AS customer_license,
                     customer.email AS customer_email,
@@ -139,7 +139,8 @@ if conn is not None:
                     active_rental.return_date AS expected_return_date,
                     branch.name AS branch_name,
                     branch.location AS branch_location,
-                    branch.contact AS branch_contact
+                    branch.contact AS branch_contact,
+                    car.price_per_day * (julianday(active_rental.return_date) - julianday(active_rental.rental_date)) AS total_cost
                 FROM car
                 LEFT JOIN (
                     SELECT rental_id, car_id, customer_id, rental_date, return_date
@@ -150,7 +151,7 @@ if conn is not None:
                 LEFT JOIN customer ON active_rental.customer_id = customer.customer_id
                 LEFT JOIN branch ON car.branch_id = branch.branch_id
                 WHERE car.car_id = ?
-                GROUP BY 
+                GROUP BY
                     car.car_id, car.model, car.brand, car.price_per_day,
                     customer.fullname, customer.contact, customer.drivers_license, customer.email,
                     active_rental.rental_date, active_rental.return_date,
