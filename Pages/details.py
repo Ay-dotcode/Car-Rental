@@ -1,18 +1,18 @@
 from PyQt6.QtWidgets import (
-    QWidget, QLabel, QPushButton, QHBoxLayout, QGridLayout, QLineEdit, QSpinBox
+    QWidget, QLabel, QPushButton, QHBoxLayout, QGridLayout, QLineEdit
 )
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QIntValidator
-from Database.database import get_car_by_id, delete_car
+from Database.database import get_car_by_id, delete_car, update_car
 
 class CarDetailsWindow(QWidget):
     details_closed = pyqtSignal()
 
     def __init__(self, car_id):
+        self.car = get_car_by_id(car_id)
         super().__init__()
-        car = get_car_by_id(car_id)
-        self.setWindowTitle(f"{car['brand']} {car['model']} - Details")
-        if car['customer_name']:
+        self.setWindowTitle(f"{self.car['brand']} {self.car['model']} - Details")
+        if self.car['customer_name']:
             self.setFixedSize(470, 370)
         else:
             self.setFixedSize(470, 250)
@@ -20,40 +20,40 @@ class CarDetailsWindow(QWidget):
         layout = QGridLayout()
         layout.setSpacing(10)
 
-        # Car Details
-        brand_label = QLabel(f"Brand Name: {car['brand']}")
-        model_label = QLabel(f"Model Name: {car['model']}")
-        price_label = QLabel(f"Price: ${car['price_per_day']}/day")
-        availability_label = QLabel(f"Status: {'Available' if not car['customer_name'] else 'Rented by ' + car['customer_name']}")
+        # self.Car Details
+        brand_label = QLabel(f"Brand Name: {self.car['brand']}")
+        model_label = QLabel(f"Model Name: {self.car['model']}")
+        price_label = QLabel(f"Price: ${self.car['price_per_day']}/day")
+        availability_label = QLabel(f"Status: {'Available' if not self.car['customer_name'] else 'Rented by ' + self.car['customer_name']}")
 
         layout.addWidget(brand_label, 0, 0)
         layout.addWidget(model_label, 1, 0)
         layout.addWidget(price_label, 1, 1)
         layout.addWidget(availability_label, 2, 1)
 
-        if car['customer_name']:
+        if self.car['customer_name']:
             # Customer Details
-            contact_label = QLabel(f"Customer Contact: {car['customer_contact']}")
-            email_label = QLabel(f"Customer Email: {car['customer_email']}")
-            license_label = QLabel(f"Customer License:  {car['customer_license']}")
+            contact_label = QLabel(f"Customer Contact: {self.car['customer_contact']}")
+            email_label = QLabel(f"Customer Email: {self.car['customer_email']}")
+            license_label = QLabel(f"Customer License:  {self.car['customer_license']}")
 
             layout.addWidget(contact_label, 3, 0)
             layout.addWidget(email_label, 4, 0)
             layout.addWidget(license_label, 5, 0)
      
             # Rental Details
-            rented_date_label = QLabel(f"Rented Date: {car['rental_date']}")
-            return_date_label = QLabel(f"Expected Return Date: {car['expected_return_date']}")
-            total_cost_label = QLabel(f"Total Cost: {car['total_cost']}")
+            rented_date_label = QLabel(f"Rented Date: {self.car['rental_date']}")
+            return_date_label = QLabel(f"Expected Return Date: {self.car['expected_return_date']}")
+            total_cost_label = QLabel(f"Total Cost: {self.car['total_cost']}")
 
             layout.addWidget(rented_date_label, 4, 1)
             layout.addWidget(return_date_label, 5, 1)
             layout.addWidget(total_cost_label, 6, 1)
 
         # Branch Details
-        branch_label = QLabel(f"Branch Name: {car['branch_name']}")
-        branch_contact_label = QLabel(f"Branch Contact: {car['branch_contact']}")
-        branch_location_label = QLabel(f"Branch Location: {car['branch_location']}")
+        branch_label = QLabel(f"Branch Name: {self.car['branch_name']}")
+        branch_contact_label = QLabel(f"Branch Contact: {self.car['branch_contact']}")
+        branch_location_label = QLabel(f"Branch Location: {self.car['branch_location']}")
 
         layout.addWidget(branch_label, 7, 0)
         layout.addWidget(branch_contact_label, 8, 0)
@@ -103,12 +103,11 @@ class CarDetailsWindow(QWidget):
             if widget is not None:
                 widget.deleteLater()
         self.remove_button_layout()
-        
 
         # Create input fields for car details
         self.model_input = QLineEdit(self.car['model'])
         self.brand_input = QLineEdit(self.car['brand'])
-        self.price_input = QLineEdit(str(self.car['price']))
+        self.price_input = QLineEdit(str(self.car['price_per_day']))
         self.price_input.setValidator(QIntValidator())
 
         # Set fixed width for input fields
@@ -121,8 +120,8 @@ class CarDetailsWindow(QWidget):
         layout.addWidget(self.brand_input, 0, 1)
         layout.addWidget(QLabel("Model Name:"), 0,  2)
         layout.addWidget(self.model_input, 0, 3)
-        layout.addWidget(QLabel("Price:"), 1, 0)
-        layout.addWidget(self.price_input, 1, 1)
+        layout.addWidget(QLabel("Price:"), 1, 2)
+        layout.addWidget(self.price_input, 1, 3)
 
         # Customer Details
         self.customer_name = QLineEdit(self.car.get('customer_name', 'N/A') if self.car.get('customer_name') else '')
@@ -193,15 +192,13 @@ class CarDetailsWindow(QWidget):
         layout.addLayout(button_layout, 7, 2, 1, 2)
 
     def save_details(self):
-        # Update the car object with the new input values
-        self.car['brand'] = self.brand_input.text()
-        self.car['model'] = self.model_input.text()
-        self.car['price'] = float(self.price_input.text())
-        self.car['customer_name'] = None if self.availability_input.text() == 'Available' else self.availability_input.text().replace('Rented by ', '')
+        brand = self.brand_input.text()
+        model = self.model_input.text()
+
 
         self.close()
 
-        self.total_cost_input = QLineEdit(self.car.get('total_cost', 'N/A') if self.car.get('total_cost') else '')
+        
     
     def closeEvent(self, event):        
         self.details_closed.emit() # Emit the signal to update the main window

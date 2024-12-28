@@ -176,7 +176,15 @@ if conn is not None:
             print(f"Error: {e}")
         finally:
             cursor.close()
+    def update_car(car_id, model, brand, price_per_day, branch_name):
+        cursor = conn.cursor()
+        try:
+            print("Updating car details...")
 
+        except Error as e:
+            print(f"Error: {e}")   
+        finally:
+            cursor.close()
 
 else:
     print("Failed to create database connection.")
