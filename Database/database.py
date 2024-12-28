@@ -176,7 +176,7 @@ if conn is not None:
             print(f"Error: {e}")
         finally:
             cursor.close()
-    def update_car(car_id, model, brand, price_per_day, branch_name):
+    def update_car(car_id, brand, model, price_per_day, branch_name):
         cursor = conn.cursor()
         try:
             print("Updating car details...")

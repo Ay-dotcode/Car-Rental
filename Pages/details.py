@@ -120,7 +120,7 @@ class CarDetailsWindow(QWidget):
         layout.addWidget(self.brand_input, 0, 1)
         layout.addWidget(QLabel("Model Name:"), 0,  2)
         layout.addWidget(self.model_input, 0, 3)
-        layout.addWidget(QLabel("Price:"), 1, 2)
+        layout.addWidget(QLabel("Price/day: $"), 1, 2)
         layout.addWidget(self.price_input, 1, 3)
 
         # Customer Details
@@ -197,8 +197,6 @@ class CarDetailsWindow(QWidget):
 
 
         self.close()
-
-        
     
     def closeEvent(self, event):        
         self.details_closed.emit() # Emit the signal to update the main window
