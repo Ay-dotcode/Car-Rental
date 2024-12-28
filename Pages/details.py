@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import (
     QWidget, QLabel, QPushButton, QHBoxLayout, QGridLayout, QLineEdit
 )
 from PyQt6.QtCore import pyqtSignal
-from PyQt6.QtGui import QIntValidator
+from PyQt6.QtGui import QIntValidator, QDoubleValidator
 from Database.database import get_car_by_id, delete_car, update_car
 
 class CarDetailsWindow(QWidget):
@@ -66,7 +66,7 @@ class CarDetailsWindow(QWidget):
         delete_button = QPushButton("Delete")
         delete_button.clicked.connect(lambda: self.delete_car_btn(car_id))
         edit_button = QPushButton("Edit")
-        edit_button.clicked.connect(self.enable_edit_mode)
+        edit_button.clicked.connect(lambda: self.enable_edit_mode())
         ok_button = QPushButton("Ok")
         ok_button.clicked.connect(self.close)
 
@@ -108,7 +108,7 @@ class CarDetailsWindow(QWidget):
         self.model_input = QLineEdit(self.car['model'])
         self.brand_input = QLineEdit(self.car['brand'])
         self.price_input = QLineEdit(str(self.car['price_per_day']))
-        self.price_input.setValidator(QIntValidator())
+        self.price_input.setValidator(QDoubleValidator(0.0, 9999.99, 2))
 
         # Set fixed width for input fields
         input_width = 200
@@ -120,7 +120,7 @@ class CarDetailsWindow(QWidget):
         layout.addWidget(self.brand_input, 0, 1)
         layout.addWidget(QLabel("Model Name:"), 0,  2)
         layout.addWidget(self.model_input, 0, 3)
-        layout.addWidget(QLabel("Price/day: $"), 1, 2)
+        layout.addWidget(QLabel("Price/day:"), 1, 2)
         layout.addWidget(self.price_input, 1, 3)
 
         # Customer Details
@@ -160,7 +160,7 @@ class CarDetailsWindow(QWidget):
 
 
         # Branch Details
-        self.branch_input = QLineEdit(self.car.get('branch', 'N/A') if self.car.get('branch') else '')
+        self.branch_input = QLineEdit(self.car['branch_name'])
         self.branch_contact_input = QLineEdit(self.car.get('branch_contact', 'N/A') if self.car.get('branch_contact') else '')
         self.branch_location_input = QLineEdit(self.car.get('branch_location', 'N/A') if self.car.get('branch_location') else '')
         self.branch_contact_input.setValidator(QIntValidator())
@@ -172,10 +172,6 @@ class CarDetailsWindow(QWidget):
 
         layout.addWidget(QLabel("Branch Name:"), 5, 0)
         layout.addWidget(self.branch_input, 5, 1)
-        layout.addWidget(QLabel("Branch Contact:"), 5, 2)
-        layout.addWidget(self.branch_contact_input, 5, 3)
-        layout.addWidget(QLabel("Branch Location:"), 6, 0)
-        layout.addWidget(self.branch_location_input, 6, 1)
                 
         # Update buttons
         button_layout = QHBoxLayout()
@@ -189,16 +185,29 @@ class CarDetailsWindow(QWidget):
 
         button_layout.addWidget(save_button)
         button_layout.addWidget(cancel_button)
-        layout.addLayout(button_layout, 7, 2, 1, 2)
+        layout.addLayout(button_layout, 6, 2, 1, 2)
 
     def save_details(self):
-        brand = self.brand_input.text()
-        model = self.model_input.text()
-
+        relation = {
+            'car_id': self.car['car_id'],
+            'brand': self.brand_input.text(),
+            'model': self.model_input.text(),
+            'price_per_day': self.price_input.text(),
+            'customer_name': self.customer_name.text(),
+            'customer_contact': self.contact_input.text(),
+            'customer_email': self.email_input.text(),
+            'customer_license': self.license_input.text(),
+            'rented_date': self.rented_date_input.text(),
+            'return_date': self.return_date_input.text(),
+            'branch_name': self.branch_input.text(),
+            'branch_contact': self.branch_contact_input.text(),
+            'branch_location': self.branch_location_input.text()
+        }
+        update_car(relation)
 
         self.close()
     
-    def closeEvent(self, event):        
+    def closeEvent(self, event):
         self.details_closed.emit() # Emit the signal to update the main window
         event.accept()
 

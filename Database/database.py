@@ -18,7 +18,8 @@ if conn is not None:
     mycursor = conn.cursor()
 
     # Create tables if they don't exist
-    mycursor.execute("""
+    mycursor.execute( # Create branch table
+        """
     CREATE TABLE IF NOT EXISTS branch (
         branch_id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE,
@@ -26,7 +27,8 @@ if conn is not None:
         contact TEXT
     );
     """)
-    mycursor.execute("""
+    mycursor.execute( # Create car table
+        """
     CREATE TABLE IF NOT EXISTS car (
         car_id INTEGER PRIMARY KEY AUTOINCREMENT,
         model TEXT NOT NULL,
@@ -37,7 +39,8 @@ if conn is not None:
         FOREIGN KEY (branch_id) REFERENCES branch(branch_id) ON DELETE SET NULL
     );
     """)
-    mycursor.execute("""
+    mycursor.execute( # Create customer table
+        """
     CREATE TABLE IF NOT EXISTS customer (
         customer_id INTEGER PRIMARY KEY AUTOINCREMENT,
         fullname TEXT NOT NULL,
@@ -46,7 +49,8 @@ if conn is not None:
         drivers_license TEXT UNIQUE NOT NULL
     );
     """)
-    mycursor.execute("""
+    mycursor.execute( # Create rentals table
+        """
     CREATE TABLE IF NOT EXISTS rentals (
         rental_id INTEGER PRIMARY KEY AUTOINCREMENT,
         car_id INTEGER,
@@ -57,7 +61,7 @@ if conn is not None:
         FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE
     );
     """)
-    
+
     conn.commit()
     mycursor.close()
 
@@ -130,30 +134,27 @@ if conn is not None:
                     customer.contact AS customer_contact,
                     customer.drivers_license AS customer_license,
                     customer.email AS customer_email,
-                    active_rental.rental_date AS rental_date,
-                    active_rental.return_date AS expected_return_date,
+                    rentals.rental_date AS rental_date,
+                    rentals.return_date AS expected_return_date,
                     branch.name AS branch_name,
                     branch.location AS branch_location,
                     branch.contact AS branch_contact,
-                    car.price_per_day * (julianday(active_rental.return_date) - julianday(active_rental.rental_date)) AS total_cost
+                    car.price_per_day * (julianday(rentals.return_date) - julianday(rentals.rental_date)) AS total_cost
                 FROM car
-                LEFT JOIN (
-                    SELECT rental_id, car_id, customer_id, rental_date, return_date
-                    FROM rentals
-                    WHERE return_date >= DATE('now') OR return_date IS NULL
-                    ORDER BY rental_date DESC
-                ) active_rental ON car.car_id = active_rental.car_id
-                LEFT JOIN customer ON active_rental.customer_id = customer.customer_id
+                LEFT JOIN rentals ON car.car_id = rentals.car_id
+                LEFT JOIN customer ON rentals.customer_id = customer.customer_id
                 LEFT JOIN branch ON car.branch_id = branch.branch_id
                 WHERE car.car_id = ?
                 GROUP BY
                     car.car_id, car.model, car.brand, car.price_per_day,
                     customer.fullname, customer.contact, customer.drivers_license, customer.email,
-                    active_rental.rental_date, active_rental.return_date,
+                    rentals.rental_date, rentals.return_date,
                     branch.name, branch.location, branch.contact;
-            """
+                """
             mycursor.execute(query, (car_id,))
+
             car = mycursor.fetchone()
+            
             if car:
                 return dict(car)
             else:
@@ -176,13 +177,86 @@ if conn is not None:
             print(f"Error: {e}")
         finally:
             cursor.close()
-    def update_car(car_id, brand, model, price_per_day, branch_name):
+    def update_car(relation):
         cursor = conn.cursor()
         try:
-            print("Updating car details...")
+            # Update car details
+            update_car_query = """
+            UPDATE car
+            SET model = ?,
+                brand = ?,
+                price_per_day = ?,
+                branch_id = (SELECT branch_id FROM branch WHERE name = ?)
+            WHERE car_id = ?;
+            """
+            cursor.execute(update_car_query, (
+                relation.get('model'),
+                relation.get('brand'),
+                relation.get('price_per_day'),
+                relation.get('branch_name'),
+                relation.get('car_id')
+            ))
 
+            # Check if customer exists
+            customer_id = None
+            if relation.get('customer_email'):
+                find_customer_query = """
+                SELECT customer_id FROM customer WHERE email = ?;
+                """
+                cursor.execute(find_customer_query, (relation['customer_email'],))
+                result = cursor.fetchone()
+
+                if result:
+                    # Customer exists, update their details
+                    customer_id = result[0]
+                    update_customer_query = """
+                    UPDATE customer
+                    SET fullname = ?,
+                        contact = ?,
+                        drivers_license = ?
+                    WHERE customer_id = ?;
+                    """
+                    cursor.execute(update_customer_query, (
+                        relation['customer_name'],
+                        relation.get('customer_contact'),
+                        relation.get('customer_license'),
+                        customer_id
+                    ))
+                else:
+                    # Customer does not exist, insert a new one
+                    insert_customer_query = """
+                    INSERT INTO customer (fullname, contact, email, drivers_license)
+                    VALUES (?, ?, ?, ?);
+                    """
+                    cursor.execute(insert_customer_query, (
+                        relation['customer_name'],
+                        relation.get('customer_contact'),
+                        relation['customer_email'],
+                        relation.get('customer_license')
+                    ))
+                    customer_id = cursor.lastrowid
+
+            if customer_id and relation.get('rental_date'):
+                delete_existing_rental_query = """
+                DELETE FROM rentals WHERE car_id = ?;
+                """
+                cursor.execute(delete_existing_rental_query, (relation['car_id'],))
+
+                insert_rental_query = """
+                INSERT INTO rentals (car_id, customer_id, rental_date, return_date)
+                VALUES (?, ?, ?, ?);
+                """
+                cursor.execute(insert_rental_query, (
+                    relation['car_id'],
+                    customer_id,
+                    relation['rental_date'],
+                    relation.get('return_date')
+                ))
+
+            conn.commit()
+            print("Car updated successfully!")
         except Error as e:
-            print(f"Error: {e}")   
+            print(f"Error: {e}")
         finally:
             cursor.close()
 
