@@ -33,7 +33,7 @@ if conn is not None:
         car_id INTEGER PRIMARY KEY AUTOINCREMENT,
         model TEXT NOT NULL,
         brand TEXT NOT NULL,
-        available BOOLEAN NOT NULL DEFAULT 1,
+        available BOOLEAN NOT NULL DEFAULT 0,
         price_per_day REAL NOT NULL,
         branch_id INTEGER,
         FOREIGN KEY (branch_id) REFERENCES branch(branch_id) ON DELETE SET NULL
@@ -62,6 +62,8 @@ if conn is not None:
     );
     """)
 
+    for row in mycursor.execute("SELECT * FROM car"):
+        print(row)
     conn.commit()
     mycursor.close()
 
@@ -87,7 +89,7 @@ if conn is not None:
         cursor = conn.cursor()
         query = """
         INSERT INTO car (model, brand, price_per_day, branch_id, available)
-        SELECT ?, ?, ROUND(?, 2), branch_id, 1
+        SELECT ?, ?, ROUND(?, 2), branch_id, 0
         FROM branch
         WHERE name = ?;
         """
@@ -124,12 +126,14 @@ if conn is not None:
         conn.row_factory = sqlite3.Row
         mycursor = conn.cursor()
         try:
+            
             query = """
                 SELECT
                     car.car_id,
                     car.model,
                     car.brand,
                     car.price_per_day,
+                    car.available,
                     customer.fullname AS customer_name,
                     customer.contact AS customer_contact,
                     customer.drivers_license AS customer_license,

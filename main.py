@@ -88,9 +88,9 @@ class MainUI(QMainWindow):
         card_layout.addWidget(price_label, 2, 0)
 
         if car['available']:
-            customer_label = QLabel("Car available")
-        else:
             customer_label = QLabel(f"Customer: {car['customer_name']}")
+        else:
+            customer_label = QLabel("Car available")
         customer_label.setStyleSheet("border: none;")
 
         card_layout.addWidget(customer_label, 3, 0)

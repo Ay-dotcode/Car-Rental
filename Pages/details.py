@@ -12,7 +12,7 @@ class CarDetailsWindow(QWidget):
         self.car = get_car_by_id(car_id)
         super().__init__()
         self.setWindowTitle(f"{self.car['brand']} {self.car['model']} - Details")
-        if self.car['customer_name']:
+        if self.car['available']:
             self.setFixedSize(470, 370)
         else:
             self.setFixedSize(470, 250)
@@ -31,7 +31,7 @@ class CarDetailsWindow(QWidget):
         layout.addWidget(price_label, 1, 1)
         layout.addWidget(availability_label, 2, 1)
 
-        if self.car['customer_name']:
+        if self.car['available']:
             # Customer Details
             contact_label = QLabel(f"Customer Contact: {self.car['customer_contact']}")
             email_label = QLabel(f"Customer Email: {self.car['customer_email']}")
