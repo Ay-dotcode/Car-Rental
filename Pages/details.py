@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QIntValidator, QDoubleValidator
 from Database.database import get_car_by_id, delete_car, update_car
+from datetime import datetime
 
 class CarDetailsWindow(QWidget):
     details_closed = pyqtSignal()
@@ -13,9 +14,9 @@ class CarDetailsWindow(QWidget):
         super().__init__()
         self.setWindowTitle(f"{self.car['brand']} {self.car['model']} - Details")
         if self.car['available']:
-            self.setFixedSize(470, 370)
+            self.setFixedSize(600, 370)
         else:
-            self.setFixedSize(470, 250)
+            self.setFixedSize(600, 250)
 
         layout = QGridLayout()
         layout.setSpacing(10)
@@ -33,17 +34,17 @@ class CarDetailsWindow(QWidget):
 
         if self.car['available']:
             # Customer Details
-            contact_label = QLabel(f"Customer Contact: {self.car['customer_contact']}")
             email_label = QLabel(f"Customer Email: {self.car['customer_email']}")
+            contact_label = QLabel(f"Customer Contact: {self.car['customer_contact']}")
             license_label = QLabel(f"Customer License:  {self.car['customer_license']}")
 
-            layout.addWidget(contact_label, 3, 0)
-            layout.addWidget(email_label, 4, 0)
+            layout.addWidget(email_label, 3, 0, 1, 2)
+            layout.addWidget(contact_label, 4, 0)
             layout.addWidget(license_label, 5, 0)
      
             # Rental Details
             rented_date_label = QLabel(f"Rented Date: {self.car['rental_date']}")
-            return_date_label = QLabel(f"Expected Return Date: {self.car['expected_return_date']}")
+            return_date_label = QLabel(f"Return Date: {self.car['expected_return_date']}")
             total_cost_label = QLabel(f"Total Cost: {self.car['total_cost']}")
 
             layout.addWidget(rented_date_label, 4, 1)
@@ -146,8 +147,12 @@ class CarDetailsWindow(QWidget):
         layout.addWidget(self.license_input, 3, 3)
 
         # Rental Details
-        self.rented_date_input = QLineEdit(self.car.get('rented_date', 'N/A') if self.car.get('rented_date') else '')
-        self.return_date_input = QLineEdit(self.car.get('return_date', 'N/A') if self.car.get('return_date') else '')
+        self.rented_date_input = QLineEdit(self.car.get('rental_date', 'N/A') if self.car.get('rental_date') else '')
+        self.return_date_input = QLineEdit(self.car.get('expected_return_date', 'N/A') if self.car.get('expected_return_date') else '')
+
+        # Set input mask for date fields to accept YYYY-MM-DD format
+        self.rented_date_input.setInputMask("0000-00-00")
+        self.return_date_input.setInputMask("0000-00-00")
 
         # Set fixed width for input fields
         self.rented_date_input.setFixedWidth(input_width)
@@ -197,7 +202,7 @@ class CarDetailsWindow(QWidget):
             'customer_contact': self.contact_input.text(),
             'customer_email': self.email_input.text(),
             'customer_license': self.license_input.text(),
-            'rented_date': self.rented_date_input.text(),
+            'rental_date': self.rented_date_input.text(),
             'return_date': self.return_date_input.text(),
             'branch_name': self.branch_input.text(),
             'branch_contact': self.branch_contact_input.text(),

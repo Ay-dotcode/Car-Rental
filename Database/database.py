@@ -62,8 +62,6 @@ if conn is not None:
     );
     """)
 
-    for row in mycursor.execute("SELECT * FROM car"):
-        print(row)
     conn.commit()
     mycursor.close()
 
@@ -129,11 +127,7 @@ if conn is not None:
             
             query = """
                 SELECT
-                    car.car_id,
-                    car.model,
-                    car.brand,
-                    car.price_per_day,
-                    car.available,
+                    car.*,
                     customer.fullname AS customer_name,
                     customer.contact AS customer_contact,
                     customer.drivers_license AS customer_license,
@@ -190,6 +184,7 @@ if conn is not None:
             SET model = ?,
                 brand = ?,
                 price_per_day = ?,
+                available = 0,
                 branch_id = (SELECT branch_id FROM branch WHERE name = ?)
             WHERE car_id = ?;
             """
@@ -210,8 +205,8 @@ if conn is not None:
                 cursor.execute(find_customer_query, (relation['customer_email'],))
                 result = cursor.fetchone()
 
+                # Customer exists, update their details
                 if result:
-                    # Customer exists, update their details
                     customer_id = result[0]
                     update_customer_query = """
                     UPDATE customer
@@ -226,8 +221,8 @@ if conn is not None:
                         relation.get('customer_license'),
                         customer_id
                     ))
+                # Customer does not exist, insert a new one
                 else:
-                    # Customer does not exist, insert a new one
                     insert_customer_query = """
                     INSERT INTO customer (fullname, contact, email, drivers_license)
                     VALUES (?, ?, ?, ?);
@@ -238,9 +233,16 @@ if conn is not None:
                         relation['customer_email'],
                         relation.get('customer_license')
                     ))
-                    customer_id = cursor.lastrowid
+                    customer_id = cursor.lastrowid                
 
-            if customer_id and relation.get('rental_date'):
+            if customer_id is not None and relation['rental_date'] is not None:
+                 # Check if return date is after rental date
+                rental_date = relation.get('rental_date')
+                return_date = relation.get('return_date')
+                if rental_date and return_date and rental_date > return_date:
+                    print("Error: Return date cannot be earlier than rental date.")
+                    return
+                
                 delete_existing_rental_query = """
                 DELETE FROM rentals WHERE car_id = ?;
                 """
@@ -256,6 +258,9 @@ if conn is not None:
                     relation['rental_date'],
                     relation.get('return_date')
                 ))
+                query = "UPDATE car SET available = 1 WHERE car_id = ?"
+                cursor.execute(query, (relation['car_id'],))
+
 
             conn.commit()
             print("Car updated successfully!")
