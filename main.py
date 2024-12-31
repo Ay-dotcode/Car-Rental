@@ -57,7 +57,7 @@ class MainUI(QMainWindow):
         self.setCentralWidget(central_widget)
 
     def update_car_cards(self, scroll_layout):
-        self.cars = fetch_car_data()
+        self.cars = fetch_car_data("")
 
         # Add new cards to the layout
         for index, car in enumerate(self.cars):
