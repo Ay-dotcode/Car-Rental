@@ -61,8 +61,6 @@ if conn is not None:
         FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE
     );
     """)
-    for row in mycursor.execute("SELECT * FROM customer"):
-        print(row)
 
     conn.commit()
     mycursor.close()
