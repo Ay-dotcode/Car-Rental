@@ -198,9 +198,21 @@ if conn is not None:
                 relation.get('car_id')
             ))
 
-            # Check if customer exists
-            customer_id = None
-            if relation.get('customer_email'):
+            if not relation.get('customer_email'):
+                # No customer provided, delete existing rental for the car
+                delete_rental_query = """
+                DELETE FROM rentals WHERE car_id = ?;
+                """
+                cursor.execute(delete_rental_query, (relation['car_id'],))
+
+                # Mark the car as available
+                update_availability_query = """
+                UPDATE car SET available = 0 WHERE car_id = ?;
+                """
+                cursor.execute(update_availability_query, (relation['car_id'],))
+            else:
+                # Handle customer and rental updates
+                customer_id = None
                 find_customer_query = """
                 SELECT customer_id FROM customer WHERE email = ?;
                 """
@@ -235,16 +247,15 @@ if conn is not None:
                         relation['customer_email'],
                         relation.get('customer_license')
                     ))
-                    customer_id = cursor.lastrowid                
+                    customer_id = cursor.lastrowid
 
-            if customer_id is not None and relation['rental_date'] is not None:
-                 # Check if return date is after rental date
+                # Update or insert rental
                 rental_date = relation.get('rental_date')
                 return_date = relation.get('return_date')
                 if rental_date and return_date and rental_date > return_date:
                     print("Error: Return date cannot be earlier than rental date.")
                     return
-                
+
                 delete_existing_rental_query = """
                 DELETE FROM rentals WHERE car_id = ?;
                 """
@@ -257,12 +268,15 @@ if conn is not None:
                 cursor.execute(insert_rental_query, (
                     relation['car_id'],
                     customer_id,
-                    relation['rental_date'],
-                    relation.get('return_date')
+                    rental_date,
+                    return_date
                 ))
-                query = "UPDATE car SET available = 1 WHERE car_id = ?"
-                cursor.execute(query, (relation['car_id'],))
 
+                # Mark the car as unavailable
+                update_car_availability_query = """
+                UPDATE car SET available = 1 WHERE car_id = ?;
+                """
+                cursor.execute(update_car_availability_query, (relation['car_id'],))
 
             conn.commit()
             print("Car updated successfully!")
