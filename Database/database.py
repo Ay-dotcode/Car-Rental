@@ -75,7 +75,8 @@ if conn is not None:
             LEFT JOIN rentals ON car.car_id = rentals.car_id
             LEFT JOIN customer ON rentals.customer_id = customer.customer_id
             GROUP BY car.car_id, customer.customer_id
-            HAVING car.brand LIKE '%{search_query}%';
+            HAVING car.brand LIKE '%{search_query}%'
+            OR car.model LIKE '%{search_query}%';
         ''')
         cars = cursor.fetchall()
         cursor.close()

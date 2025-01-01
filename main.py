@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QLabel, QPushButton, QWidget,
-    QVBoxLayout, QHBoxLayout, QGridLayout, QScrollArea
+    QVBoxLayout, QHBoxLayout, QGridLayout, QScrollArea, QLineEdit
 )
 import sys
 from PyQt6.QtCore import Qt
@@ -14,7 +14,7 @@ class MainUI(QMainWindow):
     def __init__(self):
         super(MainUI, self).__init__()
         self.setWindowTitle("Car Rental")
-        self.setFixedSize(1100, 425)
+        self.setFixedSize(1100, 460)
         self.child_windows = []  # List to track child windows
 
         # Main widget and layout
@@ -37,6 +37,22 @@ class MainUI(QMainWindow):
         top_layout.addWidget(add_car_btn)
         top_layout.addWidget(add_branch_btn)
 
+        # Search Bar and Button
+        search_layout = QHBoxLayout()
+        search_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.search_bar = QLineEdit()
+        self.search_bar.setFixedWidth(600)
+        self.search_bar.setPlaceholderText("Search by model or brand...")
+        self.search_bar.setStyleSheet("font-size: 16px; padding: 5px; border-radius: 5px;")
+        self.search_bar.returnPressed.connect(lambda: self.update_car_cards(scroll_layout))
+        search_button = QPushButton("Search")
+        search_button.setFixedWidth(100)
+        search_button.clicked.connect(lambda: self.update_car_cards(scroll_layout))
+        search_button.setStyleSheet("font-size: 18px; padding: 5px; border-radius: 5px;")
+
+        search_layout.addWidget(self.search_bar)
+        search_layout.addWidget(search_button)
+
         # Scroll Area for Cards
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
@@ -46,18 +62,22 @@ class MainUI(QMainWindow):
 
         # Create initial car cards
         self.update_car_cards(scroll_layout)
-
         scroll_area.setWidget(scroll_content)
 
         # Add all sections to the main layout
         main_layout.addLayout(top_layout)
+        main_layout.addLayout(search_layout)
         main_layout.addWidget(scroll_area)
 
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
 
     def update_car_cards(self, scroll_layout):
-        self.cars = fetch_car_data("")
+        self.clear_car_cards(scroll_layout)
+
+        search_query = self.search_bar.text()
+        self.search_bar.clear()
+        self.cars = fetch_car_data(search_query)
 
         # Add new cards to the layout
         for index, car in enumerate(self.cars):
@@ -104,6 +124,12 @@ class MainUI(QMainWindow):
 
         card_widget.setLayout(card_layout)
         return card_widget
+
+    def clear_car_cards(self, scroll_layout):
+        while scroll_layout.count():
+            child = scroll_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
 
     def open_add_car_window(self):
         self.close_all_child_windows()
