@@ -53,7 +53,7 @@ if conn is not None:
         """
     CREATE TABLE IF NOT EXISTS rentals (
         rental_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        car_id INTEGER,
+        car_id INTEGER UNIQUE,
         customer_id INTEGER,
         rental_date DATE NOT NULL,
         return_date DATE,
