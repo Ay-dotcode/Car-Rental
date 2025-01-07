@@ -1,10 +1,9 @@
 from PyQt6.QtWidgets import (
     QWidget, QLabel, QPushButton, QHBoxLayout, QGridLayout, QLineEdit
 )
-from PyQt6.QtCore import pyqtSignal
-from PyQt6.QtGui import QIntValidator, QDoubleValidator
+from PyQt6.QtCore import pyqtSignal, QRegularExpression
+from PyQt6.QtGui import QIntValidator, QDoubleValidator, QRegularExpressionValidator
 from Database.database import get_car_by_id, delete_car, update_car
-from datetime import datetime
 
 class CarDetailsWindow(QWidget):
     details_closed = pyqtSignal()
@@ -119,7 +118,7 @@ class CarDetailsWindow(QWidget):
 
         layout.addWidget(QLabel("Brand Name:"), 0, 0)
         layout.addWidget(self.brand_input, 0, 1)
-        layout.addWidget(QLabel("Model Name:"), 0,  2)
+        layout.addWidget(QLabel("Model Name:"), 0, 2)
         layout.addWidget(self.model_input, 0, 3)
         layout.addWidget(QLabel("Price/day:"), 1, 2)
         layout.addWidget(self.price_input, 1, 3)
@@ -130,6 +129,11 @@ class CarDetailsWindow(QWidget):
         self.email_input = QLineEdit(self.car.get('customer_email', 'N/A') if self.car.get('customer_email') else '')
         self.license_input = QLineEdit(self.car.get('customer_license', 'N/A') if self.car.get('customer_license') else '')
         self.contact_input.setValidator(QIntValidator())
+
+        # Email validator
+        email_regex = QRegularExpression(r"^[\w\.-]+@[\w\.-]+\.\w+$")
+        email_validator = QRegularExpressionValidator(email_regex)
+        self.email_input.setValidator(email_validator)
 
         # Set fixed width for input fields
         self.customer_name.setFixedWidth(input_width)
@@ -193,6 +197,12 @@ class CarDetailsWindow(QWidget):
         layout.addLayout(button_layout, 6, 2, 1, 2)
 
     def save_details(self):
+        email = self.email_input.text()
+        email_regex = QRegularExpression(r"^[\w\.-]+@[\w\.-]+\.\w+$") # must contain @ and a domain
+        if not email_regex.match(email).hasMatch():
+            print(f"Invalid email: {email}")
+            return  # Stop further execution if the email is invalid
+
         relation = {
             'car_id': self.car['car_id'],
             'brand': self.brand_input.text(),
@@ -200,7 +210,7 @@ class CarDetailsWindow(QWidget):
             'price_per_day': self.price_input.text(),
             'customer_name': self.customer_name.text(),
             'customer_contact': self.contact_input.text(),
-            'customer_email': self.email_input.text(),
+            'customer_email': email,
             'customer_license': self.license_input.text(),
             'rental_date': self.rented_date_input.text(),
             'return_date': self.return_date_input.text(),
@@ -211,7 +221,7 @@ class CarDetailsWindow(QWidget):
         update_car(relation)
 
         self.close()
-    
+  
     def closeEvent(self, event):
         self.details_closed.emit() # Emit the signal to update the main window
         event.accept()
